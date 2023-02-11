@@ -17,7 +17,6 @@
 //}FreeBlocks;
 
 void* mem_alloc (size_t size);
-void* mem_alloc_proba(size_t size);
 int mem_free (void*);
 
 /*

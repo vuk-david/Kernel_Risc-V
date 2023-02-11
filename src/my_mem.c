@@ -5,48 +5,6 @@
 
 #define NULL 0
 
-/*
-    Alocira (najmanje) size bajtova memorije, zaokruženo i
-    poravnato na blokove veličine MEM_BLOCK_SIZE. Vraća
-    pokazivač na alocirani deo memorije u slučaju uspeha, a null
-    pokazivač u slučaju neuspeha.
-    MEM_BLOCK_SIZE je celobrojna konstanta veća od ili
-    jednaka 64, a manja od ili jednaka 1024
-
-    Kod nas je MEM_BLOCK_SIZE 64, ali probacu i za 1024 da vidim kako ce da se ponasa.
- */
-
-//void* __mem_alloc(size_t size)
-//{
-//
-//    return (void*) (0x800000 + size);
-//}
-
-
-
-/*
-    Oslobađa prostor prethodno zauzet pomoću mem_alloc.
-    Vraća 0 u slučaju uspeha, negativnu vrednost u slučaju greške
-    (kôd greške).
-    Argument mora imati vrednost vraćenu iz mem_alloc.
-    Ukoliko to nije slučaj, ponašanje je nedefinisano: jezgro
-    može vratiti grešku ukoliko može da je detektuje ili
-    manifestovati bilo kakvo drugo predvidivo ili nepredvidivo
-    ponašanje
- */
-
-//int mem_free (void* addr)
-//{
-//    // Ovo sam samo pisao da mi se kompajler ne buni
-//    int* x = (int*) addr;
-//
-//    if ( x )
-//        return -1;
-//
-//    addr = NULL;
-//    return 0;
-//}
-
 
 static struct mem_block* free_mem_head = NULL;
 static struct mem_block* used_mem_head = NULL;
@@ -59,7 +17,7 @@ void* __mem_alloc(size_t blocks)
     {
         beginning = 1;
         free_mem_head = (struct mem_block*) HEAP_START_ADDR;
-        free_mem_head->size = ((uint64)HEAP_END_ADDR - (uint64)HEAP_START_ADDR);
+        free_mem_head->size = ((uint64)HEAP_END_ADDR - (uint64)HEAP_START_ADDR) - sizeof(struct mem_block);
 
         free_mem_head->next = NULL;
         free_mem_head->prev = NULL;
@@ -70,6 +28,7 @@ void* __mem_alloc(size_t blocks)
     // I'm not a sure I have to check for this other case in the for loop:  || ((char*) curr + allocate) < HEAP_END_ADDR
     for (struct mem_block* curr = free_mem_head; curr != NULL; curr = curr->next)
     {
+        /* FIRST FIT */
         if (curr->size < allocate)        // ========== Less ============
             continue;
         else if (curr->size == allocate)  // ========== Equals ==========
@@ -89,7 +48,6 @@ void* __mem_alloc(size_t blocks)
             if (used_mem_head == NULL)
             {
                 used_mem_head = curr;
-                // cur->size = allocate is a redundant line since cur->size == allocate that's why we're here
 
                 return (void*)((char*) curr + sizeof(struct mem_block));
             }
@@ -134,8 +92,6 @@ void* __mem_alloc(size_t blocks)
 
             leftover_allocatable_size = curr->size - allocate; // That is the leftover part
             leftover_allocatable_size -= sizeof(struct mem_block);
-
-
 
             if (leftover_allocatable_size < MEM_BLOCK_SIZE)
             {
@@ -192,7 +148,7 @@ void* __mem_alloc(size_t blocks)
             }
             else
             {
-                // Unlink current block
+                // Unlink curr from free_mem Linked List
                 if (curr->prev != NULL)
                     curr->prev->next = curr->next;
                 else
@@ -201,13 +157,13 @@ void* __mem_alloc(size_t blocks)
                 if (curr->next != NULL)
                     curr->next->prev = curr->prev;
 
-                curr->prev = NULL;
-                curr->next = NULL;
-
-
                 // Remember where the block was
                 struct mem_block* prev_curr = curr->prev;
                 struct mem_block* next_curr = curr->next;
+
+                // Unlink free_mem Linked List from curr
+                curr->prev = NULL;
+                curr->next = NULL;
 
                 // Update the size
                 curr->size = allocate;
@@ -228,7 +184,7 @@ void* __mem_alloc(size_t blocks)
                     else
                     {
                         struct mem_block* tmp = used_mem_head;
-                        struct mem_block* prev_tmp;
+                        struct mem_block* prev_tmp = NULL;
 
                         while (tmp != NULL && (char*)tmp < (char*)curr)
                         {
@@ -295,7 +251,6 @@ int __mem_free(void* allocated_address)
 
 
 
-
         // What if free_mem_head is Empty?
         if (free_mem_head == NULL)
         {
@@ -305,8 +260,6 @@ int __mem_free(void* allocated_address)
         }
         else
         {
-
-
             struct mem_block* prev_tmp = NULL;
             struct mem_block* tmp = free_mem_head;
 
@@ -350,7 +303,7 @@ int __mem_free(void* allocated_address)
 
                 return 0;
             }
-                // Merge only with "the next"
+            // Merge only with "the next"
             else if (block_to_free->next && (char*)block_to_free + sizeof(struct mem_block) + block_to_free->size == (char*)block_to_free->next)
             {
                 block_to_free->size = block_to_free->size + (block_to_free->next->size + sizeof(struct mem_block) + block_to_free->next->size);
