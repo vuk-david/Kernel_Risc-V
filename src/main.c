@@ -52,6 +52,19 @@ int main()
     buffer1[9] = 9;
     buffer1[15] = 15;
 
+    int cnt = 0;
+    while (buffer1 != 0)
+    {
+        buffer1 = __mem_alloc(1000);
+        cnt++;
+    }
+
+    // Possible to alocate 1000 blocks 2096 times + 1block and then we're left with size=1584 B
+    buffer1  = (int*) __mem_alloc(1000);
+    buffer1[5] = 9 + cnt;
+
+    // __putc(cnt);
+    __putc('k');
 
 
     return 0;
