@@ -61,7 +61,7 @@ int main()
 
     // Possible to alocate 1000 blocks 2096 times + 1block and then we're left with size=1584 B
     buffer1  = (int*) __mem_alloc(1000);
-    buffer1[5] = 9 + cnt;
+    // buffer1[5] = 9 + cnt;
 
     // __putc(cnt);
     __putc('k');
