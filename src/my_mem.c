@@ -233,6 +233,9 @@ void* __mem_alloc(size_t blocks)
 
 int __mem_free(void* allocated_address)
 {
+    if (allocated_address == NULL)
+        return -1;
+
     // Nothing to free
     if (used_mem_head == NULL && (char*)allocated_address < (char*)used_mem_head)
         return -1;
@@ -269,7 +272,11 @@ int __mem_free(void* allocated_address)
                 tmp = tmp->next;
             }
 
-            prev_tmp->next = block_to_free;
+            if (prev_tmp)
+                prev_tmp->next = block_to_free;
+            else
+                free_mem_head = block_to_free;
+
             block_to_free->prev = prev_tmp;
 
             if (tmp != NULL)
@@ -281,7 +288,7 @@ int __mem_free(void* allocated_address)
             /* Merging */
 
             // Merge with "the previous" and potentially with "the next" as well
-            if ((char*)prev_tmp + sizeof(struct mem_block) + prev_tmp->size == (char*)block_to_free)
+            if (prev_tmp != NULL && (char*)prev_tmp + sizeof(struct mem_block) + prev_tmp->size == (char*)block_to_free)
             {
                 // Merge previous with the current "block_to_free"
                 // We add "sizeof(struct mem_block) because that header no longer exists and is ready for overwrite"
@@ -309,8 +316,8 @@ int __mem_free(void* allocated_address)
                 block_to_free->size = block_to_free->size + (block_to_free->next->size + sizeof(struct mem_block) + block_to_free->next->size);
                 block_to_free->next = block_to_free->next->next;
 
-                if (block_to_free->next->next)
-                    block_to_free->next->next->prev = block_to_free;
+                if (block_to_free->next)
+                    block_to_free->next->prev = block_to_free;
 
                 return 0;
             }

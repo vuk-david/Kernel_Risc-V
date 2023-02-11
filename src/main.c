@@ -25,6 +25,34 @@ int main()
     ime[0] = 8;
     ime[2] = 9;
 
+    if (__mem_free(buffer) < 0)
+        __putc('G');
+
+    if (__mem_free(ime) < 0)
+        __putc('g');
+
+    int* nesto = 0;
+    if (__mem_free(nesto) < 0) // We wanted -1
+        __putc('f');
+
+    if (__mem_free(ime) < 0) // We wanted -1
+        __putc('g');
+
+
+    int* buffer1  = (int*) __mem_alloc(1);
+    buffer1[0] = 0;
+    buffer1[1] = 1;
+    buffer1[2] = 2;
+    buffer1[3] = 3;
+    buffer1[4] = 4;
+    buffer1[5] = 5;
+    buffer1[6] = 6;
+    buffer1[7] = 7;
+    buffer1[8] = 8;
+    buffer1[9] = 9;
+    buffer1[15] = 15;
+
+
 
     return 0;
 }
