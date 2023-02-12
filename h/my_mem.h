@@ -10,9 +10,9 @@ struct mem_block{
     struct mem_block* next;
 };
 
-void* __mem_alloc(size_t blocks);
+void* _mem_alloc(size_t blocks);
 
-int __mem_free(void* allocated_address);
+int _mem_free(void* allocated_address);
 
 
 #endif // MY_MEM

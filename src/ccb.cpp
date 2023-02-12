@@ -25,7 +25,7 @@ void CCB::dispatch()
 {
     CCB *old = running;
 
-    if (old->isFinished())
+    if (!old->isFinished())
         Scheduler::put(old);
 
     running = Scheduler::get();
