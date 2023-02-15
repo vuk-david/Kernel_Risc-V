@@ -29,6 +29,7 @@ TCB* TCB::createThread(Body body, void* arg, void* stack_space, bool start_immed
 
 void TCB::yield()
 {
+    printString("\n\t--- YIELD \n");
     __asm__ volatile("ecall");
 }
 
@@ -52,5 +53,6 @@ void TCB::threadWrapper()
     Riscv::popSppSpie();
     running->body(running->arg);
     running->setFinished(true);
-    TCB::yield();
+    //TCB::yield();
+    TCB::dispatch();
 }

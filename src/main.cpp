@@ -11,7 +11,6 @@
 int main()
 {
     Riscv::w_stvec((uint64) &Riscv::supervisorTrap);
-
     TCB* threads[5];
 
     thread_create(&threads[0], nullptr, nullptr);

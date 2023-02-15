@@ -57,7 +57,9 @@ void Riscv::handleSupervisorTrap()
                 break;
 
             case 0x13:
+                printString("ecall dispatch");
                 TCB::dispatch();
+
                 break;
         }
 
