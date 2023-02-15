@@ -20,7 +20,8 @@ uint64 TCB::timeSliceCounter = 0;
 //    return new TCB(body, TIME_SLICE);
 //}
 
-TCB* TCB::createThread(Body body, void* arg, void* stack_space, bool start_immediately)
+TCB*
+TCB::createThread(Body body, void* arg, void* stack_space, bool start_immediately)
 {
     return new TCB(body, arg, stack_space, start_immediately);
 }
@@ -30,7 +31,9 @@ TCB* TCB::createThread(Body body, void* arg, void* stack_space, bool start_immed
 //    __asm__ volatile("ecall");
 //}
 
-int TCB::threadExit()
+
+int
+TCB::threadExit()
 {
     printString("Unutar tcb Exita!\n");
 
@@ -43,7 +46,9 @@ int TCB::threadExit()
     return 0;
 }
 
-void TCB::dispatch()
+
+void
+TCB::dispatch()
 {
     TCB *old = running;
 
@@ -55,7 +60,9 @@ void TCB::dispatch()
     TCB::contextSwitch(&old->context, &running->context);
 }
 
-void TCB::threadWrapper()
+
+void
+TCB::threadWrapper()
 {
     Riscv::popSppSpie();
     running->body(running->arg);
@@ -64,7 +71,9 @@ void TCB::threadWrapper()
     TCB::dispatch();
 }
 
-int TCB::threadStart(TCB *handle)
+
+int
+TCB::threadStart(TCB *handle)
 {
     if (handle)
     {

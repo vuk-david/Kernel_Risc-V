@@ -17,7 +17,8 @@
 //}
 
 
-int thread_create(thread_t *handle, void(*start_routine)(void*), void *arg)
+int
+thread_create(thread_t *handle, void(*start_routine)(void*), void *arg)
 {
     uint64 number = 0x11;
 
@@ -35,7 +36,8 @@ int thread_create(thread_t *handle, void(*start_routine)(void*), void *arg)
 
 }
 
-int thread_exit()
+int
+thread_exit()
 {
     int number = 0x12;
     __asm__ volatile("mv a0, %0" : : "r" (number));
@@ -47,7 +49,8 @@ int thread_exit()
     return ret;
 }
 
-void thread_dispatch()
+void
+thread_dispatch()
 {
     int number = 0x13;
     __asm__ volatile("mv a0, %0" : : "r" (number));
@@ -56,8 +59,8 @@ void thread_dispatch()
 }
 
 
-
-int thread_create_wo_start(thread_t *handle, void(*start_routine)(void*), void *arg)
+int
+thread_create_wo_start(thread_t *handle, void(*start_routine)(void*), void *arg)
 {
     uint64 number = 0x14;
 
@@ -76,7 +79,8 @@ int thread_create_wo_start(thread_t *handle, void(*start_routine)(void*), void *
 }
 
 
-int thread_start(thread_t handle)
+int
+thread_start(thread_t handle)
 {
     int number = 0x15;
     __asm__ volatile("mv a1, %0" : : "r" (handle));
@@ -89,4 +93,3 @@ int thread_start(thread_t handle)
 
     return ret;
 }
-

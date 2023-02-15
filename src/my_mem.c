@@ -10,7 +10,8 @@ static struct mem_block* free_mem_head = NULL;
 static struct mem_block* used_mem_head = NULL;
 static int beginning = 0;
 
-void* _mem_alloc(size_t blocks)
+void*
+_mem_alloc(size_t blocks)
 {
     // Sta ako alociramo svaki blok? Onda ce ponovo da kaze da ima mesta. Ovo mora negde gore.
     if (free_mem_head == NULL && beginning == 0)
@@ -231,7 +232,8 @@ void* _mem_alloc(size_t blocks)
 
 
 
-int _mem_free(void* allocated_address)
+int
+_mem_free(void* allocated_address)
 {
     if (allocated_address == NULL)
         return -1;

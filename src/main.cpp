@@ -9,20 +9,22 @@
 #include "../h/syscall_c.h"
 
 
+extern void userMain();
 
 
 
 bool done = false;
-extern void userMain();
 
-void wrp(void *t){
-    printString("userMain()\n");
+void
+helper(void *arg)
+{
     userMain();
-    printString("Done\n");
     done = true;
 }
 
-int main()
+
+int
+main()
 {
     Riscv::w_stvec((uint64) &Riscv::supervisorTrap);
 
@@ -32,22 +34,21 @@ int main()
     printString("Main Created\n");
     TCB::running = main;
 
-    thread_create(&user_main, wrp, nullptr);
+    thread_create(&user_main, helper, nullptr);
     printString("UserMain Created\n");
 
     // Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
     while (!done)
-    {
         thread_dispatch();
-    }
 
     printString("Finished\n");
 
     return 0;
 }
 
-/*int main()
+/*int
+main()
 {
     Riscv::w_stvec((uint64) &Riscv::supervisorTrap);
     TCB* threads[3];

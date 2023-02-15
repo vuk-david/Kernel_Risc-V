@@ -13,18 +13,15 @@ class TCB {
 public:
     ~TCB() { delete[] stack; }
 
-    bool isFinished() const { return finished; }
-
+    bool isFinished() const      { return finished;  }
     void setFinished(bool value) { finished = value; }
-
-    uint64 getTimeSlice() const { return timeSlice; }
+    uint64 getTimeSlice() const  { return timeSlice; }
 
     using Body = void (*)(void*);
 
     // static TCB *createThread(Body body);
     static TCB *createThread(Body body, void* arg, void* stack_space, bool start_immediately);
-
-//    static void yield();
+//  static void yield();
 
     static TCB *running;
 
@@ -70,13 +67,9 @@ private:
     friend class Riscv;
 
     static void threadWrapper();
-
     static void contextSwitch(Context *oldContext, Context *runningContext);
-
     static void dispatch();
-
     static int threadExit();
-
     static int threadStart(TCB* handle);
 
     static uint64 timeSliceCounter;

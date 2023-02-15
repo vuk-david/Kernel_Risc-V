@@ -21,7 +21,8 @@
 //    mem_free(ptr);
 //}
 
-void Thread::wrapper(void *handle)
+void
+Thread::wrapper(void *handle)
 {
     if(handle)
         ((Thread*)handle)->run();
@@ -45,7 +46,8 @@ Thread::~Thread()
     delete myHandle;
 }
 
-int Thread::start()
+int
+Thread::start()
 {
     int ret = -3;
 
@@ -55,7 +57,8 @@ int Thread::start()
     return ret;
 }
 
-void Thread::dispatch()
+void
+Thread::dispatch()
 {
     thread_dispatch();
 }
