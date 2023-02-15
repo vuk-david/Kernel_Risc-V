@@ -4,15 +4,28 @@
 
 #include "../h/tcb.hpp"
 #include "../h/riscv.hpp"
+#include "../h/print.hpp"
 
 TCB *TCB::running = nullptr;
 
 uint64 TCB::timeSliceCounter = 0;
 
-TCB* TCB::createThread(Body body)
+//TCB* TCB::createThread(Body body)
+//{
+//    if (body == nullptr)
+//        printString("\n\t========== MAIN =============\n");
+//    else
+//        printString("\n\t########## NIJE MAIN =============\n");
+//
+//    return new TCB(body, TIME_SLICE);
+//}
+
+TCB* TCB::createThread(Body body, void* arg, void* stack_space, bool start_immediately)
 {
-    return new TCB(body, TIME_SLICE);
+
+    return new TCB(body, arg, stack_space, start_immediately);
 }
+
 
 void TCB::yield()
 {
@@ -21,6 +34,7 @@ void TCB::yield()
 
 void TCB::dispatch()
 {
+    printString("\n\t--- DISPECTH \n");
     TCB *old = running;
 
     if (!old->isFinished())
@@ -33,8 +47,10 @@ void TCB::dispatch()
 
 void TCB::threadWrapper()
 {
+    printString("\n\tWrapper\n");
+
     Riscv::popSppSpie();
-    running->body();
+    running->body(running->arg);
     running->setFinished(true);
     TCB::yield();
 }

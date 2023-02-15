@@ -1,23 +1,22 @@
 #ifndef _syscall_c
 #define _syscall_c
 #include "../lib/hw.h"
+#include "../h/tcb.hpp"
 
 #define NULL 0
 
-//static uint64* address_counter = NULL;
-
-//// Ovo mora da bude u nitima kao pokazivac jer bi inace
-//// za svaki slobodan blok morao da alociram memoriju sa mem_alloc
-//// i time bih imao ogromnu eksternu fragmentaciju
-//struct block_metadata{
-//    FreeBlocks* prev;
-//    FreeBlocks* next;
-//    size_t size;
-//    size_t starting_address;
-//}FreeBlocks;
-
 void* mem_alloc (size_t size);
 int mem_free (void*);
+
+
+class TCB;
+typedef TCB* thread_t;
+
+int thread_create(thread_t *handle, void(*start_routine)(void*), void *arg);
+int thread_exit();
+void thread_dispatch();
+void thread_create_wo_start(thread_t *handle, void(*start_routine)(void*), void *arg);
+void thread_start(thread_t t);
 
 /*
 

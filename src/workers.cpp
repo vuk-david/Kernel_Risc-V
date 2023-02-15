@@ -5,6 +5,7 @@
 #include "../lib/hw.h"
 #include "../h/tcb.hpp"
 #include "../h/print.hpp"
+#include "../h/syscall_c.h"
 
 void workerBodyA()
 {
@@ -49,7 +50,7 @@ static uint64 fibonacci(uint64 n)
     return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
-void workerBodyC()
+void workerBodyC(void*)
 {
     uint8 i = 0;
     for (; i < 3; i++)
@@ -61,7 +62,8 @@ void workerBodyC()
 
     printString("C: yield\n");
     __asm__ ("li t1, 7");
-    TCB::yield();
+//    TCB::yield();
+    thread_dispatch();
 
     uint64 t1 = 0;
     __asm__ ("mv %[t1], t1" : [t1] "=r"(t1));
@@ -84,7 +86,7 @@ void workerBodyC()
 //    TCB::yield();
 }
 
-void workerBodyD()
+void workerBodyD(void *)
 {
     uint8 i = 10;
     for (; i < 13; i++)
@@ -96,7 +98,8 @@ void workerBodyD()
 
     printString("D: yield\n");
     __asm__ ("li t1, 5");
-    TCB::yield();
+//    TCB::yield();
+    thread_dispatch();
 
     uint64 result = fibonacci(16);
     printString("D: fibonaci=");

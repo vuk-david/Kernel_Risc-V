@@ -19,24 +19,38 @@ public:
 
     uint64 getTimeSlice() const { return timeSlice; }
 
-    using Body = void (*)();
+    using Body = void (*)(void*);
 
-    static TCB *createThread(Body body);
+    // static TCB *createThread(Body body);
+    static TCB *createThread(Body body, void* arg, void* stack_space, bool start_immediately);
 
     static void yield();
 
     static TCB *running;
 
 private:
-    explicit TCB(Body body, uint64 timeSlice) :
+//    explicit TCB(Body body, uint64 timeSlice) :
+//            body(body),
+//            stack(body != nullptr ? new uint64[STACK_SIZE] : nullptr),
+//            context({(uint64)&threadWrapper,
+//                     stack != nullptr ? (uint64) &stack[STACK_SIZE] : 0
+//                    }),
+//            timeSlice(timeSlice),
+//            finished(false) {
+//        if (body != nullptr)
+//            Scheduler::put(this);
+//    }
+    explicit TCB(Body body, void* arg, void* stack_space, bool start_immediately) :
             body(body),
-            stack(body != nullptr ? new uint64[STACK_SIZE] : nullptr),
+            arg(arg),
+            stack(body != nullptr ? (uint64*)stack_space : nullptr),
             context({(uint64)&threadWrapper,
-                     stack != nullptr ? (uint64) &stack[STACK_SIZE] : 0
+                     stack != nullptr ? (uint64) &stack[DEFAULT_STACK_SIZE] : 0
                     }),
-            timeSlice(timeSlice),
-            finished(false) {
-        if (body != nullptr)
+            timeSlice(DEFAULT_TIME_SLICE),
+            finished(false),
+            start_immediately(start_immediately){
+        if (body != nullptr && start_immediately == true)
             Scheduler::put(this);
     }
 
@@ -46,10 +60,12 @@ private:
     };
 
     Body body;
+    void* arg = nullptr;
     uint64 *stack;
     Context context;
     uint64 timeSlice;
     bool finished;
+    bool start_immediately;
 
     friend class Riscv;
 
