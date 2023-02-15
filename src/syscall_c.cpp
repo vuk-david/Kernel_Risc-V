@@ -19,11 +19,6 @@
 
 int thread_create(thread_t *handle, void(*start_routine)(void*), void *arg)
 {
-//    if (handle == 0)
-//        return -1;
-//    else if (!start_routine == 0)
-//        return -2;
-
     uint64 number = 0x11;
 
     __asm__ volatile("mv a3, %0" : : "r" (arg));
@@ -36,12 +31,20 @@ int thread_create(thread_t *handle, void(*start_routine)(void*), void *arg)
     uint64 ret;
     __asm__ volatile("mv %0, a0" : "=r" (ret));
 
-    printString("--------------------------------------------- CREATE THREAD RET: ");
-    printInteger(ret);
-    printString("\n");
-
     return (int)ret;
 
+}
+
+int thread_exit()
+{
+    int number = 0x12;
+    __asm__ volatile("mv a0, %0" : : "r" (number));
+    __asm__ volatile("ecall");
+
+    uint64 ret;
+    __asm__ volatile("mv %0, a0" : "=r" (ret));
+
+    return ret;
 }
 
 void thread_dispatch()

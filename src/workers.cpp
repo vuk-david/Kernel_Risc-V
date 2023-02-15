@@ -46,7 +46,7 @@ void workerBodyB()
 static uint64 fibonacci(uint64 n)
 {
     if (n == 0 || n == 1) { return n; }
-    if (n % 10 == 0) { printString("~~~ Fibonacci\n"); thread_dispatch(); }
+    if (n % 10 == 0) { thread_dispatch(); }
     return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
@@ -95,7 +95,7 @@ void workerBodyD(void *)
         printInteger(i);
         printString("\n");
     }
-
+    thread_exit();
     printString("D: yield\n");
     __asm__ ("li t1, 5");
 //    TCB::yield();

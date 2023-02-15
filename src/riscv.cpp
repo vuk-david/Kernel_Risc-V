@@ -26,9 +26,8 @@ void Riscv::handleSupervisorTrap()
         uint64 sepc = r_sepc() + 4;
         uint64 sstatus = r_sstatus();
 
-        // printString("huehue\n\n");
-
         uint64 number;
+        int ret;
         __asm__ volatile ("mv %0, a0" : "=r" (number));
 
         switch (number)
@@ -50,14 +49,22 @@ void Riscv::handleSupervisorTrap()
 
                 *handle = TCB::createThread(body, arg, stack, true);
 
-                int ret;
+
                 ret = (*handle) != nullptr ? 0 : -1;
                 __asm__ volatile ("mv a0, %0" : : "r" (ret));
 
                 break;
 
+
+            case 0x12:
+                printString("Exiting...\n");
+                ret = TCB::threadExit();
+                __asm__ volatile ("mv a0, %0" : : "r" (ret));
+
+                break;
+
+
             case 0x13:
-                printString("ecall dispatch");
                 TCB::dispatch();
 
                 break;

@@ -22,20 +22,29 @@ uint64 TCB::timeSliceCounter = 0;
 
 TCB* TCB::createThread(Body body, void* arg, void* stack_space, bool start_immediately)
 {
-
     return new TCB(body, arg, stack_space, start_immediately);
 }
 
+//void TCB::yield()
+//{
+//    __asm__ volatile("ecall");
+//}
 
-void TCB::yield()
+int TCB::threadExit()
 {
-    printString("\n\t--- YIELD \n");
-    __asm__ volatile("ecall");
+    printString("Unutar tcb Exita!\n");
+
+    if (running->isFinished())
+        return -1;
+
+    running->setFinished(true);
+    TCB::dispatch();
+
+    return 0;
 }
 
 void TCB::dispatch()
 {
-    printString("\n\t--- DISPECTH \n");
     TCB *old = running;
 
     if (!old->isFinished())
@@ -48,11 +57,9 @@ void TCB::dispatch()
 
 void TCB::threadWrapper()
 {
-    printString("\n\tWrapper\n");
-
     Riscv::popSppSpie();
     running->body(running->arg);
     running->setFinished(true);
-    //TCB::yield();
+
     TCB::dispatch();
 }

@@ -24,7 +24,7 @@ public:
     // static TCB *createThread(Body body);
     static TCB *createThread(Body body, void* arg, void* stack_space, bool start_immediately);
 
-    static void yield();
+//    static void yield();
 
     static TCB *running;
 
@@ -74,6 +74,8 @@ private:
     static void contextSwitch(Context *oldContext, Context *runningContext);
 
     static void dispatch();
+
+    static int threadExit();
 
     static uint64 timeSliceCounter;
 
