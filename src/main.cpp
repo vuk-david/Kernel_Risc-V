@@ -8,7 +8,46 @@
 #include "../h/riscv.hpp"
 #include "../h/syscall_c.h"
 
+
+
+
+
+bool done = false;
+extern void userMain();
+
+void wrp(void *t){
+    printString("userMain()\n");
+    userMain();
+    printString("Done\n");
+    done = true;
+}
+
 int main()
+{
+    Riscv::w_stvec((uint64) &Riscv::supervisorTrap);
+
+    thread_t main, user_main;
+
+    thread_create(&main, nullptr, nullptr);
+    printString("Main Created\n");
+    TCB::running = main;
+
+    thread_create(&user_main, wrp, nullptr);
+    printString("UserMain Created\n");
+
+    // Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
+
+    while (!done)
+    {
+        thread_dispatch();
+    }
+
+    printString("Finished\n");
+
+    return 0;
+}
+
+/*int main()
 {
     Riscv::w_stvec((uint64) &Riscv::supervisorTrap);
     TCB* threads[3];
@@ -32,7 +71,7 @@ int main()
         thread_dispatch();
     }
 
-    printString("Startujem D\n");
+    printString("Startujem D\n"); // thread_exit-om smo ugasili bas D nit unutar workspace.cpp
     thread_start(threads[2]);
     thread_dispatch();
 
@@ -46,4 +85,4 @@ int main()
     printString("Finished\n");
 
     return 0;
-}
+}*/
