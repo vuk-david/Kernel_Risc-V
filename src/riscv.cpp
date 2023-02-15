@@ -70,6 +70,31 @@ void Riscv::handleSupervisorTrap()
 
                 break;
             }
+            case 0x14:
+            {
+                thread_t *handle;
+                Body body;
+                void *arg;
+                uint64  *stack;
+
+                __asm__ volatile ("mv %0, a1" : "=r" (handle));
+                __asm__ volatile ("mv %0, a2" : "=r" (body));
+                __asm__ volatile ("mv %0, a5" : "=r" (arg));
+                __asm__ volatile ("mv %0, a6" : "=r" (arg));
+
+                if (body != 0)
+                    stack = (uint64 *)new uint64[DEFAULT_STACK_SIZE];
+                else
+                    stack = 0;
+
+                *handle = TCB::createThread(body, arg, stack, false);
+
+
+                ret = (*handle) != nullptr ? 0 : -1;
+                __asm__ volatile ("mv a0, %0" : : "r" (ret));
+
+                break;
+            }
             case 0x15:
             {
                 thread_t *handle;
