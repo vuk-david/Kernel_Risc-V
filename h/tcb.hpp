@@ -77,6 +77,8 @@ private:
 
     static int threadExit();
 
+    static int threadStart(TCB* handle);
+
     static uint64 timeSliceCounter;
 
     static uint64 constexpr STACK_SIZE = 1024;

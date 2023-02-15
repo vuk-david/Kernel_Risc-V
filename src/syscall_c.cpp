@@ -41,7 +41,7 @@ int thread_exit()
     __asm__ volatile("mv a0, %0" : : "r" (number));
     __asm__ volatile("ecall");
 
-    uint64 ret;
+    int ret;
     __asm__ volatile("mv %0, a0" : "=r" (ret));
 
     return ret;
@@ -53,4 +53,18 @@ void thread_dispatch()
     __asm__ volatile("mv a0, %0" : : "r" (number));
 
     __asm__ volatile("ecall");
+}
+
+int thread_start(thread_t handle)
+{
+    int number = 0x15;
+    __asm__ volatile("mv a1, %0" : : "r" (handle));
+    __asm__ volatile("mv a0, %0" : : "r" (number));
+
+    __asm__ volatile("ecall");
+
+    int ret;
+    __asm__ volatile("mv %0, a0" : "=r" (ret));
+
+    return ret;
 }

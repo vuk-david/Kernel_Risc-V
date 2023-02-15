@@ -63,3 +63,14 @@ void TCB::threadWrapper()
 
     TCB::dispatch();
 }
+
+int TCB::threadStart(TCB *handle)
+{
+    if (handle)
+    {
+        handle->setFinished(false);
+        Scheduler::put(handle);
+        return 0;
+    }
+    return -1;
+}

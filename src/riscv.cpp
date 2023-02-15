@@ -33,6 +33,7 @@ void Riscv::handleSupervisorTrap()
         switch (number)
         {
             case 0x11:
+            {
                 thread_t *handle;
                 Body body;
                 void *arg;
@@ -54,20 +55,31 @@ void Riscv::handleSupervisorTrap()
                 __asm__ volatile ("mv a0, %0" : : "r" (ret));
 
                 break;
-
-
+            }
             case 0x12:
+            {
                 printString("Exiting...\n");
                 ret = TCB::threadExit();
                 __asm__ volatile ("mv a0, %0" : : "r" (ret));
 
                 break;
-
-
+            }
             case 0x13:
+            {
                 TCB::dispatch();
 
                 break;
+            }
+            case 0x15:
+            {
+                thread_t *handle;
+                __asm__ volatile ("mv %0, a1" : "=r" (handle));
+
+                TCB::threadStart((TCB*)handle);
+                break;
+            }
+
+
         }
 
 //        TCB::timeSliceCounter = 0;

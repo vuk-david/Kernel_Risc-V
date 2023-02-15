@@ -32,6 +32,13 @@ int main()
         thread_dispatch();
     }
 
+    printString("Startujem D\n");
+    thread_start(threads[2]);
+    thread_dispatch();
+
+    while (!threads[2]->isFinished())
+        thread_dispatch();
+
 
     for(auto& thread : threads)
         delete thread;
