@@ -4,7 +4,6 @@
 
 #include "../h/tcb.hpp"
 #include "../h/riscv.hpp"
-#include "../h/print.hpp"
 
 TCB *TCB::running = nullptr;
 
@@ -12,11 +11,6 @@ uint64 TCB::timeSliceCounter = 0;
 
 //TCB* TCB::createThread(Body body)
 //{
-//    if (body == nullptr)
-//        printString("\n\t========== MAIN =============\n");
-//    else
-//        printString("\n\t########## NIJE MAIN =============\n");
-//
 //    return new TCB(body, TIME_SLICE);
 //}
 
@@ -35,7 +29,6 @@ TCB::createThread(Body body, void* arg, void* stack_space, bool start_immediatel
 int
 TCB::threadExit()
 {
-    printString("Unutar tcb Exita!\n");
 
     if (running->isFinished())
         return -1;

@@ -220,7 +220,6 @@ __mem_alloc(size_t bytes)
 
 
 
-
 int
 __mem_free(void* allocated_address)
 {
@@ -273,5 +272,5 @@ __mem_free(void* allocated_address)
             next->next->prev = block_to_free;
     }
 
-    return 0; // Zasto vraca 1?
+    return 0;
 }

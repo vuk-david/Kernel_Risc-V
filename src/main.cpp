@@ -2,13 +2,49 @@
 // Created by os on 2/11/23.
 //
 
-
-
-
-
 #include "../lib/console.h"
 // #include "../h/my_mem.h"
+#include "../h/tcb.hpp"
 #include "../src/my_mem.c"
+#include "../test/printing.hpp"
+#include "../h/riscv.hpp"
+
+
+extern void userMain();
+
+bool done = false;
+void
+helper(void *arg)
+{
+    userMain();
+    done = true;
+}
+
+int
+main()
+{
+    Riscv::w_stvec((uint64) &Riscv::supervisorTrap);
+
+    thread_t main, user_main;
+
+    thread_create(&main, nullptr, nullptr);
+    printString("Main Created\n");
+    TCB::running = main;
+
+    thread_create(&user_main, helper, nullptr);
+    printString("UserMain Created\n");
+
+    while (!done)
+        thread_dispatch();
+
+    printString("\nZavrsio\n");
+    return 0;
+}
+
+
+
+
+
 
 /*
 int main()
@@ -80,43 +116,8 @@ int main()
     return 0;
 }*/
 
+
 /*
-// Primer sa snimka
-#include "../lib/console.h"
-
-int
-main()
-{
-    __putc('o');
-    __putc('s');
-    __putc('1');
-    __putc('\n');
-    __putc('\n');
-
-    while(1)
-    {
-        char character = __getc();
-        __putc(character + 30);
-    }
-}
-*/
-
-
-
-
-
-
-#include "../h/tcb.hpp"
-#include "../h/workers.hpp"
-#include "../h/print.hpp"
-#include "../h/riscv.hpp"
-#include "../h/syscall_c.hpp"
-
-
-extern void userMain();
-
-
-
 bool done = false;
 
 void
@@ -142,7 +143,7 @@ main()
     printString("UserMain Created\n");
 
 
-    /* TEST SISTEMSKIH POZIVA mem_alloc i mem_free */
+    *//* TEST SISTEMSKIH POZIVA mem_alloc i mem_free *//*
 
     int* buffer  = (int*) mem_alloc(20); // 20 bytes, 1 block, 64 bytes => 16 4bytes integers
     buffer[0] = 0;
@@ -174,7 +175,6 @@ main()
     buffer1[1] = 1;
 
 
-
     // Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
     while (!done)
@@ -185,7 +185,7 @@ main()
 
 
     return 0;
-}
+}*/
 
 
 // Threads_C_API test

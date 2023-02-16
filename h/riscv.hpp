@@ -17,7 +17,7 @@ public:
     // push x3..x31 registers onto stack
     static void pushRegisters();
 
-    // pop x3..x31 registers onto stack
+    // pop x3..x31 registers from stack
     static void popRegisters();
 
     // read register scause

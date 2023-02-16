@@ -5,8 +5,8 @@
 #include "../h/riscv.hpp"
 #include "../h/tcb.hpp"
 #include "../lib/console.h"
-#include "../h/print.hpp"
-#include "../h/syscall_c.hpp"
+#include "../test/printing.hpp"
+#include "../h/syscall_c.h"
 #include "../h/my_mem.h"
 
 using Body = void (*)(void*);
@@ -61,7 +61,7 @@ void Riscv::handleSupervisorTrap()
 
                 __asm__ volatile ("mv %0, a1" : "=r" (handle));
                 __asm__ volatile ("mv %0, a2" : "=r" (body));
-                __asm__ volatile ("mv %0, a3" : "=r" (arg));
+                __asm__ volatile ("mv %0, a6" : "=r" (arg));
 
                 if (body != 0)
                     stack = (uint64 *)new uint64[DEFAULT_STACK_SIZE];
@@ -160,6 +160,6 @@ void Riscv::handleSupervisorTrap()
         // print(scause)
         // print(sepc)
         // print(stvalue)
-
+        printString("Unexpected Trap Cause...\n");
     }
 }

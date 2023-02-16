@@ -1,5 +1,5 @@
-#include "../h/syscall_c.hpp"
-#include "../h/print.hpp"
+#include "../h/syscall_c.h"
+#include "../lib/console.h"
 
 
 void*
@@ -39,7 +39,7 @@ thread_create(thread_t *handle, void(*start_routine)(void*), void *arg)
 {
     uint64 number = 0x11;
 
-    __asm__ volatile("mv a3, %0" : : "r" (arg));
+    __asm__ volatile("mv a6, %0" : : "r" (arg));
     __asm__ volatile("mv a2, %0" : : "r" (start_routine));
     __asm__ volatile("mv a1, %0" : : "r" (handle));
     __asm__ volatile("mv a0, %0" : : "r" (number));
@@ -109,4 +109,45 @@ thread_start(thread_t handle)
     __asm__ volatile("mv %0, a0" : "=r" (ret));
 
     return ret;
+}
+
+
+
+
+int
+sem_open (sem_t* handle, unsigned init)
+{
+    return 0;
+}
+
+
+int
+sem_close (sem_t handle)
+{
+    return 0;
+}
+
+
+int
+sem_wait (sem_t id)
+{
+    return 0;
+}
+
+
+int
+sem_signal (sem_t id)
+{
+    return 0;
+}
+
+void putc (char chr)
+{
+    __putc(chr);
+}
+
+char
+getc ()
+{
+    return __getc();
 }

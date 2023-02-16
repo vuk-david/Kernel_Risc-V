@@ -1,6 +1,6 @@
 #ifndef _syscall_cpp
 #define _syscall_cpp
-#include "syscall_c.hpp"
+#include "syscall_c.h"
 
 typedef TCB* thread_t;
 
@@ -21,6 +21,35 @@ protected:
     virtual void run () {}
 private:
     thread_t myHandle;
+};
+
+
+class Semaphore {
+public:
+    Semaphore(unsigned init=1);
+    virtual ~Semaphore();
+
+    int wait();
+    int signal();
+
+private:
+    sem_t myHandle;
+};
+
+class PeriodicThread : public Thread {
+protected:
+    PeriodicThread(time_t period);
+    virtual void periodicActivation() {}
+
+public:
+    static void wrapper(void*);
+
+};
+
+class Console {
+public:
+    static char getc();
+    static void putc(char);
 };
 
 
