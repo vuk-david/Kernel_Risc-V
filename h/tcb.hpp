@@ -8,6 +8,8 @@
 #include "../lib/hw.h"
 #include "scheduler.hpp"
 
+typedef enum State{ NEW, ACTIVE, READY, BLOCKED, FINISHED } State;
+
 // Thread Control Block
 class TCB {
 public:
@@ -16,6 +18,12 @@ public:
     bool isFinished() const      { return finished;  }
     void setFinished(bool value) { finished = value; }
     uint64 getTimeSlice() const  { return timeSlice; }
+
+    static void dispatch();
+
+
+    State getState()            { return state;     }
+    void  setState(State state) {TCB::state = state;}
 
     using Body = void (*)(void*);
 
@@ -46,9 +54,20 @@ private:
                     }),
             timeSlice(DEFAULT_TIME_SLICE),
             finished(false),
-            start_immediately(start_immediately){
-        if (body != nullptr && start_immediately == true)
-            Scheduler::put(this);
+            start_immediately(start_immediately)
+    {
+        if (body != nullptr)
+        {
+            if (start_immediately == true)
+            {
+                this->state = READY;
+                Scheduler::put(this);
+            }
+            else
+                this->state = NEW;
+        }
+        else
+            this->state = ACTIVE;
     }
 
     struct Context {
@@ -61,6 +80,7 @@ private:
     uint64 *stack;
     Context context;
     uint64 timeSlice;
+    State state;
     bool finished;
     bool start_immediately;
 
@@ -68,7 +88,6 @@ private:
 
     static void threadWrapper();
     static void contextSwitch(Context *oldContext, Context *runningContext);
-    static void dispatch();
     static int threadExit();
     static int threadStart(TCB* handle);
 

@@ -8,6 +8,7 @@
 #include "../test/printing.hpp"
 #include "../h/syscall_c.h"
 #include "../h/my_mem.h"
+#include "../h/sem.hpp"
 
 using Body = void (*)(void*);
 
@@ -123,8 +124,55 @@ void Riscv::handleSupervisorTrap()
                 TCB::threadStart((TCB*)handle);
                 break;
             }
+            case 0x21:
+            {
+                unsigned init;
+                sem_t handle;
 
+                __asm__ volatile ("mv %0, a2" : "=r" (init));
+                __asm__ volatile ("mv %0, a1" : "=r" (handle));
 
+                int retu;
+                retu = handle->__open(&handle, init);
+
+                __asm__ volatile ("mv a0, %0" : : "r" (retu));
+                break;
+            }
+            case 0x22:
+            {
+                sem_t handle;
+                __asm__ volatile ("mv %0, a1" : "=r" (handle));
+
+                int retu;
+                retu = handle->__close();
+
+                __asm__ volatile ("mv a0, %0" : : "r" (retu));
+
+                break;
+            }
+            case 0x23:
+            {
+                sem_t handle;
+                __asm__ volatile ("mv %0, a1" : "=r" (handle));
+
+                int retu;
+                retu = handle->__wait();
+
+                __asm__ volatile ("mv a0, %0" : : "r" (retu));
+
+                break;
+            }
+            case 0x24:
+            {
+                sem_t handle;
+                __asm__ volatile ("mv %0, a1" : "=r" (handle));
+
+                int retu;
+                retu = handle->__signal();
+
+                __asm__ volatile ("mv a0, %0" : : "r" (retu));
+                break;
+            }
         }
 
 //        TCB::timeSliceCounter = 0;

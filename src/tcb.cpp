@@ -6,7 +6,6 @@
 #include "../h/riscv.hpp"
 
 TCB *TCB::running = nullptr;
-
 uint64 TCB::timeSliceCounter = 0;
 
 //TCB* TCB::createThread(Body body)
@@ -29,11 +28,11 @@ TCB::createThread(Body body, void* arg, void* stack_space, bool start_immediatel
 int
 TCB::threadExit()
 {
-
-    if (running->isFinished())
+    if (running->isFinished() || running->getState() != State::ACTIVE)
         return -1;
 
     running->setFinished(true);
+    running->state = State::FINISHED;
     TCB::dispatch();
 
     return 0;
@@ -45,10 +44,14 @@ TCB::dispatch()
 {
     TCB *old = running;
 
-    if (!old->isFinished())
+    if (!old->isFinished() && old->state == State::ACTIVE)
+    {
+        old->state = State::READY;
         Scheduler::put(old);
+    }
 
     running = Scheduler::get();
+    running->setState(State::ACTIVE);
 
     TCB::contextSwitch(&old->context, &running->context);
 }
@@ -60,6 +63,7 @@ TCB::threadWrapper()
     Riscv::popSppSpie();
     running->body(running->arg);
     running->setFinished(true);
+    running->setState(State::FINISHED);
 
     TCB::dispatch();
 }
@@ -70,9 +74,15 @@ TCB::threadStart(TCB *handle)
 {
     if (handle)
     {
+        if (handle->getState() != State::NEW)
+            return -1;
+
         handle->setFinished(false);
+        handle->state = State::READY;
         Scheduler::put(handle);
+
         return 0;
     }
+
     return -1;
 }

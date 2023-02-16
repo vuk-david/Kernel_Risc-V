@@ -117,34 +117,74 @@ thread_start(thread_t handle)
 int
 sem_open (sem_t* handle, unsigned init)
 {
-    return 0;
+    uint64 number = 0x21;
+
+    __asm__ volatile("mv a2, %0" : : "r" (init));
+    __asm__ volatile("mv a1, %0" : : "r" (handle));
+    __asm__ volatile("mv a0, %0" : : "r" (number));
+    __asm__ volatile("ecall");
+
+    uint64 ret;
+    __asm__ volatile("mv %0, a0" : "=r" (ret));
+
+    return (int)ret;
 }
 
 
 int
 sem_close (sem_t handle)
 {
-    return 0;
+    uint64 number = 0x22;
+
+    __asm__ volatile("mv a1, %0" : : "r" (handle));
+    __asm__ volatile("mv a0, %0" : : "r" (number));
+    __asm__ volatile ("ecall");
+
+    int ret;
+    __asm__ volatile("mv %0, a0" : "=r" (ret));
+
+    return ret;
 }
 
 
 int
 sem_wait (sem_t id)
 {
-    return 0;
+    uint64 number = 0x23;
+
+    __asm__ volatile("mv a1, %0" : : "r" (id));
+    __asm__ volatile("mv a0, %0" : : "r" (number));
+    __asm__ volatile ("ecall");
+
+    int ret;
+    __asm__ volatile("mv %0, a0" : "=r" (ret));
+
+    return ret;
 }
 
 
 int
 sem_signal (sem_t id)
 {
-    return 0;
+    uint64 number = 0x24;
+
+    __asm__ volatile("mv a1, %0" : : "r" (id));
+    __asm__ volatile("mv a0, %0" : : "r" (number));
+    __asm__ volatile ("ecall");
+
+    int ret;
+    __asm__ volatile("mv %0, a0" : "=r" (ret));
+
+    return ret;
 }
 
-void putc (char chr)
+
+void
+putc (char chr)
 {
     __putc(chr);
 }
+
 
 char
 getc ()

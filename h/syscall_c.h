@@ -10,7 +10,6 @@ void* mem_alloc (size_t size);
 int mem_free (void*);
 
 
-
 class TCB;
 typedef TCB* thread_t;
 
@@ -22,13 +21,13 @@ int  thread_start(thread_t handle);
 
 
 
-class _sem;
-typedef _sem* sem_t;
+class Sem;
+typedef Sem* sem_t;
 
 int sem_open (sem_t* handle, unsigned init);
-int sem_close (sem_t handle);
 int sem_wait (sem_t id);
 int sem_signal (sem_t id);
+int sem_close (sem_t handle);
 
 
 
