@@ -141,9 +141,8 @@ main()
     thread_create(&user_main, helper, nullptr);
     printString("UserMain Created\n");
 
-//    int* buffer1  = (int*) mem_alloc(20);
-//    buffer1[0] = 0;
-//    buffer1[1] = 1;
+
+    /* TEST SISTEMSKIH POZIVA mem_alloc i mem_free */
 
     int* buffer  = (int*) mem_alloc(20); // 20 bytes, 1 block, 64 bytes => 16 4bytes integers
     buffer[0] = 0;
