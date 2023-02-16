@@ -6,7 +6,8 @@
 #include "../h/tcb.hpp"
 #include "../lib/console.h"
 #include "../h/print.hpp"
-#include "../h/syscall_c.h"
+#include "../h/syscall_c.hpp"
+#include "../h/my_mem.h"
 
 using Body = void (*)(void*);
 

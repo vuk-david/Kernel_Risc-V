@@ -1,6 +1,6 @@
 #ifndef _syscall_cpp
 #define _syscall_cpp
-#include "syscall_c.h"
+#include "syscall_c.hpp"
 
 typedef TCB* thread_t;
 

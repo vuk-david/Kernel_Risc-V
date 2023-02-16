@@ -110,7 +110,7 @@ main()
 #include "../h/workers.hpp"
 #include "../h/print.hpp"
 #include "../h/riscv.hpp"
-#include "../h/syscall_c.h"
+#include "../h/syscall_c.hpp"
 
 
 extern void userMain();
@@ -141,12 +141,18 @@ main()
     thread_create(&user_main, helper, nullptr);
     printString("UserMain Created\n");
 
+    int* buffer1  = (int*) mem_alloc(1);
+    buffer1[0] = 0;
+    buffer1[1] = 1;
+
     // Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
     while (!done)
         thread_dispatch();
 
     printString("Finished\n");
+
+
 
     return 0;
 }

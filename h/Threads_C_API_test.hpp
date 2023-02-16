@@ -1,7 +1,7 @@
 #ifndef XV6_THREADS_C_API_TEST_HPP
 #define XV6_THREADS_C_API_TEST_HPP
 
-#include "../h/syscall_c.h"
+#include "../h/syscall_c.hpp"
 
 #include "print.hpp"
 

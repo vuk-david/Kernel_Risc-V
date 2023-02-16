@@ -1,5 +1,5 @@
 #include "../h/syscall_cpp.hpp"
-#include "../h/syscall_c.h"
+#include "../h/syscall_c.hpp"
 
 //void* operator new (size_t n)
 //{

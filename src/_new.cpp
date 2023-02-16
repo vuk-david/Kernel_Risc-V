@@ -1,5 +1,6 @@
 //#include "../lib/mem.h"
 #include "../h/my_mem.h"
+#include "../h/syscall_c.hpp"
 
 using size_t = decltype(sizeof(0));
 

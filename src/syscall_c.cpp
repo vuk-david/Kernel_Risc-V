@@ -1,4 +1,4 @@
-#include "../h/syscall_c.h"
+#include "../h/syscall_c.hpp"
 #include "../h/print.hpp"
 
 
@@ -12,10 +12,10 @@ mem_alloc(size_t size)
     __asm__ volatile("mv a0, %0" : : "r" (number));
     __asm__ volatile ("ecall");
 
-    uint64 allocated_address = 0;
-    __asm__ volatile ("mv %[a0], a0" : [a0] "=r"(allocated_address));
+    void* allocated_address;
+    __asm__ volatile("mv %0, a0" : "=r" (allocated_address));
 
-    return (uint64*)allocated_address;
+    return allocated_address;
 }
 
 
