@@ -1,7 +1,21 @@
-// mem treba ja da implementiram, ovo njihovo samo treba da izbrisem i da ne koristim
-// uopste
+#ifndef MY_MEM
+#define MY_MEM
 
-#include "../h/my_mem.h"
+#include "../lib/hw.h"
+
+
+struct mem_block{
+    size_t size;
+    struct mem_block* prev;
+    struct mem_block* next;
+};
+
+void* __mem_alloc(size_t blocks);
+
+int __mem_free(void* allocated_address);
+
+
+#endif // MY_MEM
 
 #define NULL 0
 
@@ -10,10 +24,149 @@ static struct mem_block* free_mem_head = NULL;
 static struct mem_block* used_mem_head = NULL;
 static int beginning = 0;
 
-void*
-_mem_alloc(size_t blocks)
+void free_insert(struct mem_block* block);
+void free_remove(struct mem_block* block);
+
+void used_insert(struct mem_block* block);
+void used_remove(struct mem_block* block);
+
+
+void
+free_insert(struct mem_block* block)
 {
-    // Sta ako alociramo svaki blok? Onda ce ponovo da kaze da ima mesta. Ovo mora negde gore.
+    if ((char*)block < (char*)HEAP_START_ADDR || (char*)block >= (char*)HEAP_END_ADDR)
+        return;
+
+    if (free_mem_head == NULL)
+    {
+        free_mem_head = block;
+    }
+    else if (block < free_mem_head)
+    {
+        block->prev = NULL;
+        block->next = free_mem_head;
+        free_mem_head->prev = block;
+
+        free_mem_head = block;
+    }
+    else
+    {
+        struct mem_block* prev_tmp = free_mem_head;
+        struct mem_block* tmp      = free_mem_head->next;
+
+        while (tmp != NULL && (char*)tmp < (char*)block)
+        {
+            prev_tmp = tmp;
+            tmp = tmp->next;
+        }
+
+        prev_tmp->next = block;
+        block->prev = prev_tmp;
+        block->next = tmp;
+
+        if (tmp != NULL)
+            tmp->prev = block;
+    }
+}
+
+
+void
+free_remove(struct mem_block* block)
+{
+    if (free_mem_head == NULL || block == NULL)
+        return;
+
+    if (block == free_mem_head)
+    {
+        free_mem_head = free_mem_head->next;
+
+        if (free_mem_head != NULL)
+            free_mem_head->prev = NULL;
+    }
+    else
+    {
+        block->prev->next = block->next;
+        if (block->next)
+            block->next->prev = block->prev;
+    }
+
+    // Unlink
+    block->prev = NULL;
+    block->next = NULL;
+}
+
+
+void
+used_insert(struct mem_block* block)
+{
+    if ((char*)block < (char*)HEAP_START_ADDR || (char*)block >= (char*)HEAP_END_ADDR)
+        return;
+
+    if (used_mem_head == NULL)
+    {
+        used_mem_head = block;
+    }
+    else if (block < used_mem_head)
+    {
+        block->prev = NULL;
+        block->next = used_mem_head;
+        used_mem_head->prev = block;
+
+        used_mem_head = block;
+    }
+    else
+    {
+        struct mem_block* prev_tmp = used_mem_head;
+        struct mem_block* tmp      = used_mem_head->next;
+
+        while (tmp != NULL && (char*)tmp < (char*)block)
+        {
+            prev_tmp = tmp;
+            tmp = tmp->next;
+        }
+
+        prev_tmp->next = block;
+        block->prev = prev_tmp;
+        block->next = tmp;
+
+        if (tmp != NULL)
+            tmp->prev = block;
+    }
+}
+
+
+void
+used_remove(struct mem_block* block)
+{
+    if (used_mem_head == NULL || block == NULL)
+        return;
+
+    if (block == used_mem_head)
+    {
+        used_mem_head = used_mem_head->next;
+
+        if (used_mem_head != NULL)
+            used_mem_head->prev = NULL;
+    }
+    else
+    {
+        block->prev->next = block->next;
+        if (block->next)
+            block->next->prev = block->prev;
+    }
+
+    // Unlink
+    block->prev = NULL;
+    block->next = NULL;
+}
+
+
+
+
+void*
+__mem_alloc(size_t blocks)
+{
+    // Initialize if necessary(This is done only once)
     if (free_mem_head == NULL && beginning == 0)
     {
         beginning = 1;
@@ -24,204 +177,40 @@ _mem_alloc(size_t blocks)
         free_mem_head->prev = NULL;
     }
 
+
+
     size_t allocate = blocks * MEM_BLOCK_SIZE; // Now this is in bytes
 
-    // I'm not a sure I have to check for this other case in the for loop:  || ((char*) curr + allocate) < HEAP_END_ADDR
     for (struct mem_block* curr = free_mem_head; curr != NULL; curr = curr->next)
     {
         /* FIRST FIT */
-        if (curr->size < allocate)        // ========== Less ============
+        if (curr->size < allocate)
             continue;
-        else if (curr->size == allocate)  // ========== Equals ==========
+        else if (curr->size == allocate)
         {
-            if (curr->prev != NULL)
-                curr->prev->next = curr->next;
-            else
-                free_mem_head = curr->next;
+            free_remove(curr);
+            used_insert(curr);
 
-            if (curr->next != NULL)
-                curr->next->prev = curr->prev;
-
-            curr->prev = NULL;
-            curr->next = NULL;
-
-            // Put it in used_mem Linked List
-            if (used_mem_head == NULL)
-            {
-                used_mem_head = curr;
-
-                return (void*)((char*) curr + sizeof(struct mem_block));
-            }
-            else
-            {
-                if ((char*)curr < (char*)used_mem_head) // Should be first in the list
-                {
-                    used_mem_head->prev = curr;
-                    curr->next = used_mem_head;
-                    used_mem_head = curr;
-
-                    return (void*)((char*) curr + sizeof(struct mem_block));
-                }
-                else // Should be somewhere in the list
-                {
-                    struct mem_block* tmp      = used_mem_head;
-                    struct mem_block* prev_tmp = NULL;
-
-                    while (tmp != NULL && (char*)tmp < (char*)curr)
-                    {
-                        prev_tmp = tmp;
-                        tmp = tmp->next;
-                    }
-
-
-                    prev_tmp->next = curr;
-                    curr->prev = prev_tmp;
-
-                    if (tmp != NULL)
-                    {
-                        tmp->prev = curr;
-                        curr->next = tmp;
-                    }
-
-                    return (void*)((char*) curr + sizeof(struct mem_block));
-                }
-            }
+            return (void*)((char*)curr + sizeof(struct mem_block));
         }
-        else // curr->size > allocate     // ========== Greater =========
+        else if (curr->size > allocate)
         {
-            size_t leftover_allocatable_size = 0;
+            free_remove(curr);
 
-            leftover_allocatable_size = curr->size - allocate; // That is the leftover part
+            size_t leftover_allocatable_size = curr->size - allocate; // Leftover
             leftover_allocatable_size -= sizeof(struct mem_block);
 
-            if (leftover_allocatable_size < MEM_BLOCK_SIZE)
-            {
-                // Unlink current block
-                if (curr->prev != NULL)
-                    curr->prev->next = curr->next;
-                else
-                    free_mem_head = curr->next;
+            struct mem_block* leftover = (struct mem_block*) ((char*)curr + sizeof(struct mem_block) + allocate);
+            leftover->prev = NULL;
+            leftover->next = NULL;
+            leftover->size = leftover_allocatable_size;
 
-                if (curr->next != NULL)
-                    curr->next->prev = curr->prev;
+            curr->size = allocate;
 
-                curr->prev = NULL;
-                curr->next = NULL;
+            free_insert(leftover);
+            used_insert(curr);
 
-                // Put curr in "used_mem" Linked List
-                // You already wrote it
-                // ========== Equals ==========
-                if (used_mem_head == NULL)
-                {
-                    used_mem_head = curr;
-                }
-                else
-                {
-                    if ((char*)curr < (char*) used_mem_head)
-                    {
-                        used_mem_head->prev = curr;
-                        curr->next = used_mem_head;
-                        used_mem_head = curr;
-                    }
-                    else
-                    {
-                        struct mem_block* tmp      = used_mem_head;
-                        struct mem_block* prev_tmp = NULL;
-
-                        while (tmp && (char*)tmp < (char*)curr)
-                        {
-                            prev_tmp = tmp;
-                            tmp = tmp->next;
-                        }
-
-                        prev_tmp->next = curr;
-                        curr->prev = prev_tmp;
-
-                        if (tmp != NULL)
-                        {
-                            tmp->prev = curr;
-                            curr->next = tmp;
-                        }
-                    }
-                }
-
-                return (void*)((char*)curr + sizeof(struct mem_block));
-            }
-            else
-            {
-                // Unlink curr from free_mem Linked List
-                if (curr->prev != NULL)
-                    curr->prev->next = curr->next;
-                else
-                    free_mem_head = curr->next;
-
-                if (curr->next != NULL)
-                    curr->next->prev = curr->prev;
-
-                // Remember where the block was
-                struct mem_block* prev_curr = curr->prev;
-                struct mem_block* next_curr = curr->next;
-
-                // Unlink free_mem Linked List from curr
-                curr->prev = NULL;
-                curr->next = NULL;
-
-                // Update the size
-                curr->size = allocate;
-
-                // Put curr in "used_mem" Linked List
-                if (used_mem_head == NULL)
-                {
-                    used_mem_head = curr;
-                }
-                else
-                {
-                    if ((char*)curr < (char*) used_mem_head)
-                    {
-                        used_mem_head->prev = curr;
-                        curr->next = used_mem_head;
-                        used_mem_head = curr;
-                    }
-                    else
-                    {
-                        struct mem_block* tmp = used_mem_head;
-                        struct mem_block* prev_tmp = NULL;
-
-                        while (tmp != NULL && (char*)tmp < (char*)curr)
-                        {
-                            prev_tmp = tmp;
-                            tmp = tmp->next;
-                        }
-
-                        prev_tmp->next = curr;
-                        curr->prev = prev_tmp; // Because tmp could be NULL, that's why we can't tmp->prev
-
-                        if (tmp != NULL)
-                        {
-                            tmp->prev = curr;
-                            curr->next = tmp;
-                        }
-                    }
-                }
-
-                // Put the leftover back in free_mem_list
-                struct mem_block* leftover = (struct mem_block*) ((char*)curr + sizeof(struct mem_block) + allocate);
-                leftover->size = leftover_allocatable_size;
-
-                // Re-Link with "free_mem" Linked List
-                if (prev_curr == NULL) // If it's the head that is divided
-                {
-                    free_mem_head = leftover;
-                    leftover->prev = NULL;
-                }
-                else
-                    leftover->prev = prev_curr;
-
-                leftover->next = next_curr;
-
-
-                return (void*)((char*) curr + sizeof(struct mem_block));
-            }
+            return (void*)((char*)curr + sizeof(struct mem_block));
         }
     }
 
@@ -233,189 +222,56 @@ _mem_alloc(size_t blocks)
 
 
 int
-_mem_free(void* allocated_address)
+__mem_free(void* allocated_address)
 {
-    if (allocated_address == NULL)
+    /* Nothing to free */
+    if (allocated_address == NULL || used_mem_head == NULL)
         return -1;
 
-    // Nothing to free
-    if (used_mem_head == NULL && (char*)allocated_address < (char*)used_mem_head)
+    if ((char*)allocated_address < (char*)HEAP_START_ADDR || (char*)allocated_address > (char*)HEAP_END_ADDR)
         return -1;
 
-    struct mem_block* block_to_free = (struct mem_block*) ((char*)allocated_address - sizeof(struct mem_block));
+    // Because we keep the list sorted
+    if ((char*)allocated_address < (char*)used_mem_head)
+        return -1;
 
-    if ((char*)block_to_free == (char*)used_mem_head)
+    struct mem_block* block_to_free = (struct mem_block*)((char*)allocated_address - sizeof(struct mem_block));
+
+    used_remove(block_to_free);
+    free_insert(block_to_free);
+
+    /* Merge */
+    struct mem_block* prev = block_to_free->prev;
+    struct mem_block* next = block_to_free->next;
+
+    /* Merge with Left */
+    if (prev != NULL && ((char*)prev + sizeof(struct mem_block) + prev->size) >= (char*)block_to_free)
     {
-        used_mem_head = block_to_free->next;
-        if (used_mem_head)
-            used_mem_head->prev = NULL;
+        prev->size += sizeof(struct mem_block) + block_to_free->size;
+        prev->next = block_to_free->next;
 
-        block_to_free->next = NULL;
+        if (next != NULL)
+            next->prev = prev;
 
-
-
-
-
-        // What if free_mem_head is Empty?
-        if (free_mem_head == NULL)
+        /* Merge with Right as well */
+        if (next != NULL && ((char*)prev + sizeof(struct mem_block) + prev->size) >= (char*)next)
         {
-            free_mem_head = block_to_free;
+            prev->size += sizeof(struct mem_block) + next->size;
+            prev->next = next->next;
 
-            return 0;
-        }
-        else
-        {
-            struct mem_block* prev_tmp = NULL;
-            struct mem_block* tmp = free_mem_head;
-
-            while (tmp && (char*)tmp < (char*)block_to_free)
-            {
-                prev_tmp = tmp;
-                tmp = tmp->next;
-            }
-
-            if (prev_tmp)
-                prev_tmp->next = block_to_free;
-            else
-                free_mem_head = block_to_free;
-
-            block_to_free->prev = prev_tmp;
-
-            if (tmp != NULL)
-            {
-                tmp->prev = block_to_free;
-                block_to_free->next = tmp;
-            }
-
-            /* Merging */
-
-            // Merge with "the previous" and potentially with "the next" as well
-            if (prev_tmp != NULL && (char*)prev_tmp + sizeof(struct mem_block) + prev_tmp->size == (char*)block_to_free)
-            {
-                // Merge previous with the current "block_to_free"
-                // We add "sizeof(struct mem_block) because that header no longer exists and is ready for overwrite"
-                prev_tmp->size = prev_tmp->size + (block_to_free->size + sizeof(struct mem_block));
-                prev_tmp->next = block_to_free->next;
-
-
-                if (block_to_free->next)
-                {
-                    block_to_free->next->prev = prev_tmp;
-
-                    // Now check if we can merge with the next one(that would be maximally possible)
-                    if ((char*)prev_tmp + sizeof(struct mem_block) + prev_tmp->size == (char*)prev_tmp->next)
-                    {
-                        prev_tmp->size = prev_tmp->size + (prev_tmp->next->size + sizeof(struct mem_block));
-                        prev_tmp->next = prev_tmp->next->next;
-                    }
-                }
-
-                return 0;
-            }
-            // Merge only with "the next"
-            else if (block_to_free->next && (char*)block_to_free + sizeof(struct mem_block) + block_to_free->size == (char*)block_to_free->next)
-            {
-                block_to_free->size = block_to_free->size + (block_to_free->next->size + sizeof(struct mem_block) + block_to_free->next->size);
-                block_to_free->next = block_to_free->next->next;
-
-                if (block_to_free->next)
-                    block_to_free->next->prev = block_to_free;
-
-                return 0;
-            }
+            if (next->next != NULL)
+                next->next->prev = prev;
         }
     }
-    else
+        /* Merge only with Right */
+    else if (next != NULL && ((char*)block_to_free + sizeof(struct mem_block) + block_to_free->size) >= (char*)next)
     {
-        struct mem_block* iter_used = used_mem_head;
+        block_to_free->size += sizeof(struct mem_block) + next->size;
+        block_to_free->next = next->next;
 
-        while (iter_used != NULL)
-        {
-            if ((char*)iter_used == (char*)block_to_free)
-                break;
-        }
-
-        // No such block was allocated.
-        if (iter_used == NULL)
-            return -1;
-
-        struct mem_block* prev_used = block_to_free->prev;
-        struct mem_block* next_used = block_to_free->next;
-
-        prev_used->next = next_used;
-        if (next_used)
-            next_used->prev = prev_used;
-
-        block_to_free->prev = NULL;
-        block_to_free->next = NULL;
-
-
-        // What if free_mem_head is Empty?
-        if (free_mem_head == NULL)
-        {
-            free_mem_head = block_to_free;
-
-            return 0;
-        }
-        else
-        {
-
-            // Put back "free_mem" Linked List with a potential of merging
-            struct mem_block* prev_tmp = NULL;
-            struct mem_block* tmp = free_mem_head;
-
-            while (tmp && (char*)tmp < (char*)block_to_free)
-            {
-                prev_tmp = tmp;
-                tmp = tmp->next;
-            }
-
-            prev_tmp->next = block_to_free;
-            block_to_free->prev = prev_tmp;
-
-            if (tmp != NULL)
-            {
-                tmp->prev = block_to_free;
-                block_to_free->next = tmp;
-            }
-
-            /* Merging */ // Make a function
-
-            // Merge with "the previous" and potentially with "the next" one, as well
-            if ((char*)prev_tmp + sizeof(struct mem_block) + prev_tmp->size == (char*)block_to_free)
-            {
-                prev_tmp->size = prev_tmp->size + (block_to_free->size + sizeof(struct mem_block));
-                prev_tmp->next = block_to_free->next;
-
-                if (block_to_free->next)
-                {
-                    block_to_free->next->prev = prev_tmp;
-
-                    if ((char*)prev_tmp + sizeof(struct mem_block) + prev_tmp->size == (char*)block_to_free->next)
-                    {
-                        prev_tmp->size = prev_tmp->size + (block_to_free->next->size + sizeof(struct mem_block));
-                        prev_tmp->next = block_to_free->next->next;
-
-                        if (block_to_free->next->next)
-                            block_to_free->next->next->prev = prev_tmp;
-
-                        return 0;
-                    }
-                }
-            }
-            else if ((char*)block_to_free + sizeof(struct mem_block) + block_to_free->size == (char*)block_to_free->next)
-            {
-                block_to_free->size = block_to_free->size + (block_to_free->next->size + sizeof(struct mem_block));
-                block_to_free->next = block_to_free->next->next;
-
-                if (block_to_free->next->next)
-                    block_to_free->next->next->prev = block_to_free;
-
-                return 0;
-            }
-
-            return 0;
-        }
+        if (next->next != NULL)
+            next->next->prev = block_to_free;
     }
-    return 0;
+
+    return 0; // Zasto vraca 1?
 }

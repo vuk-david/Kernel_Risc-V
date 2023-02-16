@@ -8,6 +8,8 @@
 #include "../lib/hw.h"
 #include "scheduler.hpp"
 
+#include "../h/my_mem.h"
+
 // Thread Control Block
 class TCB {
 public:
@@ -16,6 +18,9 @@ public:
     bool isFinished() const      { return finished;  }
     void setFinished(bool value) { finished = value; }
     uint64 getTimeSlice() const  { return timeSlice; }
+
+    void *operator new(size_t size) { return __mem_alloc(size); }
+    void operator delete(void *ptr) { __mem_free(ptr); }
 
     using Body = void (*)(void*);
 
