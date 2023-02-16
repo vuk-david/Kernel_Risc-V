@@ -10,6 +10,7 @@
 // #include "../h/my_mem.h"
 #include "../src/my_mem.c"
 
+/*
 int main()
 {
     // TEST MEM ALLOC
@@ -77,7 +78,7 @@ int main()
 
 
     return 0;
-}
+}*/
 
 /*
 // Primer sa snimka
@@ -105,28 +106,28 @@ main()
 
 
 
-//#include "../h/tcb.hpp"
-//#include "../h/workers.hpp"
-//#include "../h/print.hpp"
-//#include "../h/riscv.hpp"
-//#include "../h/syscall_c.h"
+#include "../h/tcb.hpp"
+#include "../h/workers.hpp"
+#include "../h/print.hpp"
+#include "../h/riscv.hpp"
+#include "../h/syscall_c.h"
 
 
-//extern void userMain();
-//
-//
-//
-//bool done = false;
-//
-//void
-//helper(void *arg)
-//{
-//    userMain();
-//    done = true;
-//}
+extern void userMain();
+
+
+
+bool done = false;
+
+void
+helper(void *arg)
+{
+    userMain();
+    done = true;
+}
 
 // Threads CPP_API test
-/*int
+int
 main()
 {
     Riscv::w_stvec((uint64) &Riscv::supervisorTrap);
@@ -148,7 +149,7 @@ main()
     printString("Finished\n");
 
     return 0;
-}*/
+}
 
 
 // Threads_C_API test
