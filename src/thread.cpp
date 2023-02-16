@@ -1,25 +1,4 @@
 #include "../h/syscall_cpp.hpp"
-#include "../h/syscall_c.hpp"
-
-//void* operator new (size_t n)
-//{
-//    return mem_alloc(n);
-//}
-//
-//void* operator new[](size_t n)
-//{
-//    return mem_alloc(n);
-//}
-//
-//void operator delete(void *ptr)
-//{
-//    mem_free(ptr);
-//}
-//
-//void operator delete[](void *ptr)
-//{
-//    mem_free(ptr);
-//}
 
 void
 Thread::wrapper(void *handle)

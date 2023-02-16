@@ -141,9 +141,40 @@ main()
     thread_create(&user_main, helper, nullptr);
     printString("UserMain Created\n");
 
-    int* buffer1  = (int*) mem_alloc(1);
+//    int* buffer1  = (int*) mem_alloc(20);
+//    buffer1[0] = 0;
+//    buffer1[1] = 1;
+
+    int* buffer  = (int*) mem_alloc(20); // 20 bytes, 1 block, 64 bytes => 16 4bytes integers
+    buffer[0] = 0;
+    buffer[1] = 1;
+    buffer[2] = 2;
+    buffer[3] = 3;
+    buffer[4] = 4;
+    buffer[5] = 5;
+    buffer[6] = 6;
+    buffer[7] = 7;
+    buffer[8] = 8;
+    buffer[9] = 9;
+    buffer[15] = 15;
+    // buffer[16] = 16; // scause = 0x0000000000000007, sepc = 0x00000000000015b4, stval = 0x0, panic: kerneltrap
+
+
+    int* ime = (int*) mem_alloc(300); // 300 bytes, 5 blocks, 320 bytes
+    ime[0] = 8;
+    ime[2] = 9;
+
+    if (mem_free(buffer) < 0)
+        printString("Greska prilikom free-ovanja buffer-a\n");
+
+    if (mem_free(ime) < 0)
+        printString("Greska prilikom free-ovanja ime-a\n");
+
+    int* buffer1  = (int*) mem_alloc(3); // 3 bytes, 1 block, 64 bytes => 16 * 4 bytes integers
     buffer1[0] = 0;
     buffer1[1] = 1;
+
+
 
     // Riscv::ms_sstatus(Riscv::SSTATUS_SIE);
 
