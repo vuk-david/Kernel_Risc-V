@@ -2,19 +2,36 @@
 #include "../h/print.hpp"
 
 
-//void *mem_alloc(size_t size)
-//{
-//    uint64 a0 = 1;
-//    size_t blocks = (size % MEM_BLOCK_SIZE > 0) ? (size / MEM_BLOCK_SIZE + 1) : (size / MEM_BLOCK_SIZE);
-//    __asm__ volatile ("mv a1, %[a1]" : : [a1] "r"(blocks));
-//    __asm__ volatile ("mv a0, %[a0]" : : [a0] "r"(a0));
-//    __asm__ volatile ("ecall");
-//
-//    uint64 address = 0;
-//    __asm__ volatile ("mv %[a0], a0" : [a0] "=r"(address));
-//
-//    return (uint64*)address;
-//}
+void*
+mem_alloc(size_t size)
+{
+    uint64 number = 0x01;
+    size_t bytes = size;
+
+    __asm__ volatile("mv a1, %0" : : "r" (bytes));
+    __asm__ volatile("mv a0, %0" : : "r" (number));
+    __asm__ volatile ("ecall");
+
+    uint64 allocated_address = 0;
+    __asm__ volatile ("mv %[a0], a0" : [a0] "=r"(allocated_address));
+
+    return (uint64*)allocated_address;
+}
+
+
+int
+mem_free(void* allocated_address)
+{
+    uint64 number = 0x02;
+    __asm__ volatile("mv a1, %0" : : "r" (allocated_address));
+    __asm__ volatile("mv a0, %0" : : "r" (number));
+    __asm__ volatile ("ecall");
+
+    uint64 ret;
+    __asm__ volatile("mv %0, a0" : "=r" (ret));
+
+    return ret;
+}
 
 
 int

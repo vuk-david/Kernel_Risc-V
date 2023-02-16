@@ -32,6 +32,25 @@ void Riscv::handleSupervisorTrap()
 
         switch (number)
         {
+            case 0x01:
+            {
+                size_t allocate;
+                __asm__ volatile ("mv %0, a1" : "=r" (allocate));
+
+                uint64 *allocated_address = (uint64*) __mem_alloc(allocate);
+                __asm__ volatile ("mv a0, %0" : : "r" (allocated_address));
+
+                break;
+            }
+            case 0x02:
+            {
+                void *allocated_address;
+                __asm__ volatile ("mv %0, a1" : "=r" (allocated_address));
+
+                int ret = __mem_free(allocated_address);
+                __asm__ volatile ("mv a0, %0" : : "r" (ret));
+                break;
+            }
             case 0x11:
             {
                 thread_t *handle;
