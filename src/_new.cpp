@@ -1,4 +1,5 @@
-#include "../lib/mem.h"
+//#include "../lib/mem.h"
+#include "../h/my_mem.h"
 
 using size_t = decltype(sizeof(0));
 

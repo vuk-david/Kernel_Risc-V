@@ -10,7 +10,7 @@ struct mem_block{
     struct mem_block* next;
 };
 
-void* __mem_alloc(size_t blocks);
+void* __mem_alloc(size_t bytes);
 
 int __mem_free(void* allocated_address);
 
@@ -164,7 +164,7 @@ used_remove(struct mem_block* block)
 
 
 void*
-__mem_alloc(size_t blocks)
+__mem_alloc(size_t bytes)
 {
     // Initialize if necessary(This is done only once)
     if (free_mem_head == NULL && beginning == 0)
@@ -177,7 +177,7 @@ __mem_alloc(size_t blocks)
         free_mem_head->prev = NULL;
     }
 
-
+    size_t blocks = (bytes % MEM_BLOCK_SIZE > 0) ? (bytes / MEM_BLOCK_SIZE + 1) : (bytes / MEM_BLOCK_SIZE);
 
     size_t allocate = blocks * MEM_BLOCK_SIZE; // Now this is in bytes
 

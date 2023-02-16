@@ -10,7 +10,7 @@ struct mem_block{
     struct mem_block* next;
 };
 
-void* __mem_alloc(size_t blocks);
+void* __mem_alloc(size_t bytes);
 
 int __mem_free(void* allocated_address);
 
