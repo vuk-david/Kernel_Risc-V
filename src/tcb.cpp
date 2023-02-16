@@ -45,7 +45,7 @@ TCB::dispatch()
 {
     TCB *old = running;
 
-    if (!old->isFinished() && old->state == State::ACTIVE)
+    if (old->state == State::ACTIVE)
     {
         old->state = State::READY;
         Scheduler::put(old);
@@ -60,6 +60,7 @@ TCB::dispatch()
     }
     else
         printString("\n------- NESTO ---\n");
+
 }
 
 

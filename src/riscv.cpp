@@ -29,7 +29,7 @@ void Riscv::handleSupervisorTrap()
         uint64 sstatus = r_sstatus();
 
         uint64 number;
-        int ret;
+
         __asm__ volatile ("mv %0, a0" : "=r" (number));
 
         switch (number)
@@ -71,7 +71,7 @@ void Riscv::handleSupervisorTrap()
 
                 *handle = TCB::createThread(body, arg, stack, true);
 
-
+                int ret;
                 ret = (*handle) != nullptr ? 0 : -1;
                 __asm__ volatile ("mv a0, %0" : : "r" (ret));
 
@@ -79,7 +79,8 @@ void Riscv::handleSupervisorTrap()
             }
             case 0x12:
             {
-                printString("Exiting...\n");
+//                printString("Exiting...\n");
+                int ret;
                 ret = TCB::threadExit();
                 __asm__ volatile ("mv a0, %0" : : "r" (ret));
 
@@ -110,7 +111,7 @@ void Riscv::handleSupervisorTrap()
 
                 *handle = TCB::createThread(body, arg, stack, false);
 
-
+                int ret;
                 ret = (*handle) != nullptr ? 0 : -1;
                 __asm__ volatile ("mv a0, %0" : : "r" (ret));
 
