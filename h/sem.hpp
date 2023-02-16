@@ -9,7 +9,7 @@ class Sem {
 public:
     Sem(unsigned int capacity);
     ~Sem();
-    int __open  (Sem **handle, unsigned init);
+    static int __open(Sem **handle, unsigned init);
     int __close ();
     int __wait  ();
     int __signal();

@@ -120,7 +120,7 @@ sem_open (sem_t* handle, unsigned init)
     uint64 number = 0x21;
 
     __asm__ volatile("mv a2, %0" : : "r" (init));
-    __asm__ volatile("mv a1, %0" : : "r" (handle));
+    __asm__ volatile("mv a6, %0" : : "r" (handle));
     __asm__ volatile("mv a0, %0" : : "r" (number));
     __asm__ volatile("ecall");
 

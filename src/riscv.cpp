@@ -20,7 +20,7 @@ void Riscv::popSppSpie()
 
 void Riscv::handleSupervisorTrap()
 {
-    uint64 scause = r_scause();
+    uint64 volatile scause = r_scause();
 
     if (scause == 0x0000000000000008UL || scause == 0x0000000000000009UL)
     {
@@ -127,13 +127,13 @@ void Riscv::handleSupervisorTrap()
             case 0x21:
             {
                 unsigned init;
-                sem_t handle;
+                sem_t* handle;
 
                 __asm__ volatile ("mv %0, a2" : "=r" (init));
-                __asm__ volatile ("mv %0, a1" : "=r" (handle));
+                __asm__ volatile ("mv %0, a6" : "=r" (handle));
 
                 int retu;
-                retu = handle->__open(&handle, init);
+                retu = Sem::__open(handle, init);
 
                 __asm__ volatile ("mv a0, %0" : : "r" (retu));
                 break;
@@ -205,9 +205,9 @@ void Riscv::handleSupervisorTrap()
     else
     {
         // Unexpected trap cause
-        // print(scause)
-        // print(sepc)
-        // print(stvalue)
-        printString("Unexpected Trap Cause...\n");
+        //printInt(scause);
+//        printInt(sepc);
+//        printInt(stvalue);
+//        printString("Unexpected Trap Cause...\n");
     }
 }

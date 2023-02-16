@@ -4,6 +4,7 @@
 
 #include "../h/tcb.hpp"
 #include "../h/riscv.hpp"
+#include "../test/printing.hpp"
 
 TCB *TCB::running = nullptr;
 uint64 TCB::timeSliceCounter = 0;
@@ -51,9 +52,14 @@ TCB::dispatch()
     }
 
     running = Scheduler::get();
-    running->setState(State::ACTIVE);
 
-    TCB::contextSwitch(&old->context, &running->context);
+    if (running)
+    {
+        running->setState(State::ACTIVE);
+        TCB::contextSwitch(&old->context, &running->context);
+    }
+    else
+        printString("\n------- NESTO ---\n");
 }
 
 
